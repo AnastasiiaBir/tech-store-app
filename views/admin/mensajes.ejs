@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/stylesheets/style.css">
+</head>
+<body>
+  <h1><%= title %></h1>
+
+  <p><a href="/admin/dashboard">⬅ Volver al panel de administración</a></p>
+
+  <% if (mensajes.length === 0) { %>
+    <p>Sin mensajes de clientes.</p>
+  <% } else { %>
+    <table>
+      <thead>
+        <tr>
+          <th>Cliente</th>
+          <th>Tema</th>
+          <th>Mensaje</th>
+          <th>Fecha de mensaje</th>
+          <th>Leido</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% mensajes.forEach(m => { %>
+          <tr onclick="window.location.href='/admin/mensajes/<%= m.clienteId %>'">
+      <td><%= m.nombreCliente %></td>
+      <td><%= m.mensaje %></td>
+      <td><%= m.fecha %></td>
+      <td><%= m.leido ? 'Sí' : 'No' %></td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  <% } %>
+</body>
+</html>

@@ -1,0 +1,54 @@
+<!--views/index.ejs-->
+<!DOCTYPE html>
+<html>
+<head>
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/stylesheets/style.css" />
+</head>
+<body class="home-body">
+  <div class="overlay">
+    <h1>Bienvenido a Tech Store</h1>
+
+    <div class="filters">
+      <input type="text" id="nombreFiltro" placeholder="Buscar por nombre...">
+      <input type="number" id="precioFiltro" placeholder="Precio máximo (€)">
+      <button type="button" id="filtrarBtn">Filtrar</button>
+    </div>
+
+    <div class="tabla-container">
+      <table class="tabla-productos">
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Descripción</th>
+            <th>Precio (€)</th>
+            <th>Acción</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% productos.forEach(p => { %>
+            <tr>
+              <td><%= p.nombre %></td>
+              <td><%= p.descripcion %></td>
+              <td><%= p.precioUnitario %></td>
+              <td>
+                <form action="/client/pedidos" method="POST">
+                  <input type="hidden" name="productoId" value="<%= p.id %>">
+                  <button type="submit">🛒 Añadir a carrito</button>
+                </form>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+
+    <% if (!user) { %>
+      <p style="margin-top: 1rem;">⚠️ Debes <a href="/auth/login">iniciar sesión</a> para finalizar tu pedido</p>
+    <% } %>
+  </div>
+
+  <script src="/js/main.js"></script>
+  
+</body>
+</html>

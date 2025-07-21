@@ -1,0 +1,89 @@
+<!-- views/cliente/perfil.ejs-->
+<style>
+  .perfil-container {
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 1.5rem;
+    border-radius: 10px;
+    background-color: #f9f9f9;
+    font-family: sans-serif;
+  }
+
+  .perfil-container h2 {
+    text-align: center;
+    margin-bottom: 1.5rem;
+  }
+
+  .perfil-container img {
+    display: block;
+    margin: 0 auto 1rem auto;
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 2px solid #ccc;
+  }
+
+  .perfil-container form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .perfil-container label {
+    font-weight: bold;
+    margin-bottom: 0.25rem;
+  }
+
+  .perfil-container input[type="text"],
+  .perfil-container textarea,
+  .perfil-container input[type="file"] {
+    padding: 0.5rem;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
+
+  .perfil-container button {
+    margin-top: 1rem;
+    padding: 0.6rem;
+    font-size: 1rem;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+
+  .perfil-container button:hover {
+    background-color: #0056b3;
+  }
+</style>
+
+<div class="perfil-container">
+
+<h2>Mi Perfil</h2>
+<form action="/client/perfil" method="POST" enctype="multipart/form-data">
+
+  <label>Foto de perfil:</label>
+  <% if (cliente.fotoPerfil) { %>
+    <img src="<%= cliente.fotoPerfil %>" width="100" />
+  <% } %>
+  <input type="file" name="fotoPerfil" accept="image/*" />
+
+  <label>Nombre:</label>
+  <input type="text" name="nombre" value="<%= cliente.nombre %>" required />
+
+  <label>Apellidos:</label>
+  <input type="text" name="apellidos" value="<%= cliente.apellidos %>" />
+
+  <label>Teléfono:</label>
+  <input type="text" name="telefono" value="<%= cliente.telefono %>" />
+
+  <label>Dirección de entrega:</label>
+  <textarea name="direccionEntrega"><%= cliente.direccionEntrega %></textarea>
+
+  <button type="submit">Guardar cambios</button>
+ 
+</form>
+</div>

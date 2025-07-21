@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- Заголовок страницы (использует переданный title) -->
+    <title><%= title %></title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+</head>
+<body>
+
+    <!-- Заголовок страницы -->
+    <h1><%= title %>Panel de Administrador</h1>
+
+    <!-- Было: обращение напрямую к user.nombre и user.email -->
+    <!-- <p>Добро пожаловать, администратор <%= user.nombre %> (<%= user.email %>)!</p> -->
+
+    <!-- Новый безопасный способ: с проверкой на существование данных -->
+    <p>
+        Bienvenido, Administrador
+        <%= user && user.nombre ? user.nombre : (user && user.empresa ? user.empresa : 'Usuario') %> 
+        (<%= user && user.email ? user.email : 'email no especificado' %>)!
+    </p>
+
+    <!-- Кнопка выхода -->
+    <p><a href="/auth/logout">Cerrar</a></p>
+
+    <!-- Раздел функций администратора -->
+    <h2>Funciones del Administrador:</h2>
+    <ul>
+        <li><a href="/admin/clientes">Gestión de clientes</a></li>
+        <li><a href="/admin/productos">Gestión de productos</a></li>
+        <li><a href="/admin/pedidos">Gestión de pedidos</a></li>
+        <li><a href="/admin/mensajes">Mensajes de soporte</a></li>
+    </ul>
+
+</body>
+</html>

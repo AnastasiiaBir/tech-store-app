@@ -1,0 +1,49 @@
+<!--views/admin/pedidos.ejs-->
+<!DOCTYPE html>
+<html>
+<head>
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/stylesheets/style.css">
+</head>
+<body>
+  <h1><%= title %></h1>
+
+  <p><a href="/admin/dashboard">⬅ Volver al panel de administración</a></p>
+
+  <% if (pedidos.length === 0) { %>
+    <p>Sin pedidos.</p>
+  <% } else { %>
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Cliente</th>
+          <th>Fecha de pedido</th>
+          <th>Estado</th>
+          <th>Estado del trabajo</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% pedidos.forEach(pedido => { %>
+          <tr>
+            <td><%= pedido.id %></td>
+            <td><%= pedido.Cliente.nombre %></td>
+            <td><%= pedido.createdAt.toLocaleString() %></td>
+            <td><%= pedido.pagado ? 'Pagado' : 'En espera de pago' %></td>
+            <td>
+              <form action="/admin/pedidos/<%= pedido.id %>/estado" method="POST">
+                <select name="estadoTrabajo" onchange="this.form.submit()">
+                  <% const estados = ['En proceso', 'Pagado', 'Enviado a procesamiento', 'En ensamblaje', 'Enviado a entrega', 'Entregado']; %>
+                  <% estados.forEach(estado => { %>
+                    <option value="<%= estado %>" <%= pedido.estadoTrabajo === estado ? 'selected' : '' %>><%= estado %></option>
+                  <% }) %>
+                </select>
+              </form>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  <% } %>
+</body>
+</html>

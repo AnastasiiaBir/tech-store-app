@@ -1,0 +1,79 @@
+<!--views/client/pedidos.ejs-->
+<!DOCTYPE html>
+<html>
+<head>
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/stylesheets/style.css" />
+</head>
+<body>
+  <h1><%= title %></h1>
+  <p>Bienvenido, <%= user.nombre %>!</p>
+  <a href="/client/dashboard">← Volver al panel</a>
+  <hr>
+
+  <% if (pedidos.length === 0) { %>
+    <p>Usted no tiene pedidos aun.</p>
+  <% } else { %>
+    <% pedidos.forEach(pedido => { %>
+      <div class="pedido">
+        <h2>Numero de pedido: <%= pedido.id %></h2>
+        <p>Fecha de pedido: <%= new Date(pedido.createdAt).toLocaleDateString() %></p>
+        
+          <table border="1" cellpadding="8" cellspacing="0">
+            <thead>
+              <tr>
+                <th>Producto</th>
+                <th>Precio (€)</th>
+                <th>Cantidad</th>
+                <th>Importe (€)</th>
+                <th>Accion</th>
+                <th>Estado del trabajo</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% pedido.items.forEach(item => { %>
+                <tr>
+                  <td><%= item.producto.nombre %></td>
+                  <td><%= item.precioUnitarioAlMomento %></td>
+                  <td>
+                    <form action="/client/pedidos/<%= pedido.id %>/restar/<%= item.producto.id %>" method="POST" style="display:inline;">
+                      <button type="submit">−</button>
+                    </form>
+                    <%= item.cantidad %>
+                    <form action="/client/pedidos/<%= pedido.id %>/sumar/<%= item.producto.id %>" method="POST" style="display:inline;">
+                      <button type="submit">+</button>
+                    </form>
+                  </td>
+                  <td><%= (item.precioUnitarioAlMomento * item.cantidad).toFixed(2) %></td>
+                  <td>
+                    <form action="/client/pedidos/<%= pedido.id %>/eliminar/<%= item.producto.id %>" method="POST" style="display:inline;">
+                      <button type="submit">🗑 Eliminar</button>
+                    </form>
+                  </td>
+                  <td><%= pedido.estadoTrabajo %></td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+
+          <p><strong>Total:</strong> € <%= pedido.total %></p>
+
+          <p><strong>Estado del trabajo:</strong> <span id="estado-pedido-<%= pedido.id %>"><%= pedido.estadoTrabajo %></span></p>
+          
+            <% if (pedido.estadoPago === 'Sin liquidar') { %>
+              <form action="/client/pedidos/<%= pedido.id %>/pagar" method="POST" style="margin-top: 10px;">
+                <button type="submit">💳 Realizar pedido</button>
+              </form>
+            <% } else { %>
+                <p><em>Estado del pago: <%= pedido.estadoPago %></em></p>
+            <% } %>
+          
+        <hr>
+      </div>
+    <% }) %>
+  <% } %>
+</body>
+</html>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/socketPedidoCliente.js"></script>

@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/stylesheets/style.css">
+  <script src="/socket.io/socket.io.js"></script>
+
+  <script defer src="/js/chat-admin.js"></script>
+  
+  <script>
+
+    const socket = io();
+    
+    document.addEventListener("DOMContentLoaded", () => {
+      const form = document.getElementById("formulario-mensaje");
+      const input = document.getElementById("mensaje-input"); // фикс ID
+      const clienteId = document.body.dataset.clienteid;
+      const mensajesDiv = document.getElementById("mensajes");
+
+      console.log("📦 clienteId из data-атрибута:", clienteId);
+
+      if (!form || !clienteId) {
+        console.log("❌ No se encontró el formulario o clienteId!");
+        return;
+      }
+
+      // ✅ Подключаемся к комнате клиента после загрузки DOM
+      socket.emit("adminJoin", "cliente_" + clienteId);
+
+      // Когда клиент ответит или сервер отправит новое сообщение — добавим его в чат
+      socket.on('nuevoMensaje', (msg) => {
+      console.log('📨 Nuevo mensaje en WebSocket:', msg);
+
+      const mensajesDiv = document.getElementById('mensajes');
+
+      const div = document.createElement('div');
+      div.className = msg.remitente === 'admin' ? 'mensaje-admin' : 'mensaje-cliente';
+      div.innerHTML = `<strong>${msg.remitente === 'admin' ? 'Tu (admin)' : 'Cliente'}:</strong> ${msg.contenido}<br><small>${new Date(msg.fechaEnvio).toLocaleString()}</small>`;
+
+      mensajesDiv.appendChild(div);
+      mensajesDiv.scrollTop = mensajesDiv.scrollHeight;
+     });
+
+      console.log("✅ Formulario encontrado, agregando receptor");
+
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        console.log("📨 Activado submit");
+
+        const mensaje = input.value.trim();
+        console.log("🟡 Haga clic en el botón de envío");
+        console.log("📦 Texto del mensaje:", mensaje);
+
+        if (mensaje === "") {
+          console.log("⚠️ El mensaje está vacío: no se envía");
+          return;
+        }
+
+        try {
+          console.log("📡 Enviando fetch a /admin/mensajes/enviar");
+
+          const response = await fetch("/admin/mensajes/enviar", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ mensaje, clienteId }),
+          });
+
+          const data = await response.json();
+          console.log("✅ Respuesta del servidor:", data);
+
+          if (data.success) {
+            console.log("🎉 Mensaje enviado!");
+            input.value = "";
+          } else {
+            console.log("❌ Error del servidor:", data.message);
+          }
+        } catch (error) {
+          console.error("💥 Error durante la fetch:", error);
+        }
+      });
+    });
+
+  </script>
+
+  <style>
+    #mensajes {
+      border: 1px solid #ccc;
+      height: 300px;
+      overflow-y: scroll;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+    .mensaje-admin {
+      margin: 5px;
+      padding: 8px;
+      border-radius: 8px;
+      background-color: #cce5ff;
+      text-align: right;
+    }
+    .mensaje-cliente {
+      margin: 5px;
+      padding: 8px;
+      border-radius: 8px;
+      background-color: #f8f9fa;
+      text-align: left;
+    }
+  </style>
+</head>
+<body data-clienteId="<%= clienteId %>">
+  <h1><%= title %></h1>
+  <p><a href="/admin/mensajes">⬅ Volver a la lista de mensajes</a></p>
+
+  <h3>Correspondencia con el cliente: <%= mensaje.Cliente.nombre %> (<%= mensaje.Cliente.email %>)</h3>
+
+  <div id="mensajes">
+    <% mensajesCliente.forEach(m => { %>
+      <div class="<%= m.remitente === 'admin' ? 'mensaje-admin' : 'mensaje-cliente' %>">
+        <strong><%= m.remitente === 'admin' ? 'Tu (admin)' : 'Cliente' %>:</strong> <%= m.contenido %><br>
+        <small><%= new Date(m.fechaEnvio).toLocaleString() %></small>
+      </div>
+    <% }) %>
+  </div>
+
+  <form id="formulario-mensaje">
+    <textarea id="mensaje-input" rows="4" placeholder="Введите ответ..." required></textarea><br>
+    <button id="btn-enviar" type="submit">Enviar respuesta</button>
+  </form>
+
+</body>
+</html>

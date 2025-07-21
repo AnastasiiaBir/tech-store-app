@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/stylesheets/style.css">
+  <script src="/socket.io/socket.io.js"></script>
+  <script defer src="/js/chat.js"></script>
+  <style>
+    .switch-buttons {
+      margin-bottom: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-width: 300px;
+    }
+
+    .switch-buttons button {
+      padding: 10px;
+      font-size: 16px;
+    }
+
+    #emailForm, #chatBlock {
+      display: none;
+      margin-top: 20px;
+      max-width: 600px;
+    }
+
+    #mensajes {
+      height: 300px;
+      overflow-y: auto;
+      border: 1px solid #ccc;
+      padding: 10px;
+      margin-bottom: 10px;
+      background-color: #f9f9f9;
+    }
+
+    textarea, input[type="text"], input[type="email"] {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 10px;
+      box-sizing: border-box;
+    }
+
+    button[type="submit"] {
+      padding: 8px 16px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body
+  data-cliente="<%= user.nombre %>"
+  data-email="<%= user.email %>"
+  data-clienteid="<%= user.id %>"
+>
+
+  <h1><%= title %></h1>
+
+  <!-- Кнопки переключения -->
+  <div class="switch-buttons">
+    <button type="button" onclick="mostrarEmail()">✉️ Enviar correo electrónico</button>
+    <button type="button" onclick="mostrarChat()">💬 Abrir chat</button>
+  </div>
+
+  <!-- Форма Email -->
+  <form id="emailForm">
+    <label for="asunto">Asunto:</label>
+    <input type="text" id="asunto" name="asunto" required>
+
+    <label for="email">Tu email:</label>
+    <input type="email" id="email" name="email" value="<%= user.email %>" readonly>
+
+    <label for="contenido">Mensaje</label>
+    <textarea id="contenido" name="contenido" rows="5" required></textarea>
+
+    <button type="submit">Enviar</button>
+  </form>
+
+  <!-- Блок чата -->
+  <div id="chatBlock">
+    <div id="mensajes"></div>
+
+  <form id="formulario-chat">
+    <input type="text" id="input-chat" placeholder="Escribe un mensaje..." required autocomplete="off" />
+    <button type="submit">Enviar</button>
+  </form>
+  </div>
+
+  <script>
+    const socket = io();
+
+    // Скрываем оба блока при загрузке
+    document.getElementById('emailForm').style.display = 'none';
+    document.getElementById('chatBlock').style.display = 'none';
+
+    function mostrarEmail() {
+      document.getElementById('emailForm').style.display = 'block';
+      document.getElementById('chatBlock').style.display = 'none';
+    }
+
+    function mostrarChat() {
+      document.getElementById('chatBlock').style.display = 'block';
+      document.getElementById('emailForm').style.display = 'none';
+
+      const clienteId = document.body.dataset.clienteid;
+      socket.emit('joinRoom', { clienteId, role: 'cliente' });
+      socket.emit('obtenerHistorial', { clienteId, requesterId: clienteId, role: 'cliente' });
+    }
+
+    // Обработка отправки email
+    const emailForm = document.getElementById('emailForm');
+    emailForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      const asunto = document.getElementById('asunto').value.trim();
+      const contenido = document.getElementById('contenido').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const cliente = document.body.dataset.cliente;
+      const clienteId = parseInt(document.body.dataset.clienteid, 10);
+
+      if (!asunto || !contenido || !clienteId) {
+        alert('Por favor, rellene todos los campos.');
+        return;
+      }
+
+      socket.emit('nuevoMensaje', {
+        asunto,
+        contenido,
+        cliente,
+        email,
+        clienteId
+      });
+
+      alert('✅ Mensaje enviado!');
+      emailForm.reset();
+    });
+  </script>
+</body>
+</html>

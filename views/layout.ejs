@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title><%= title %> - Tech Store</title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+    </head>
+<body>
+
+
+    <script>
+        // Это JavaScript код, который будет выполнен в браузере, НЕ на сервере Node.js
+        // console.log('layout.ejs (browser): Title value:', "<%= typeof title !== 'undefined' ? title : 'UNDEFINED IN BROWSER' %>");
+        // console.log('layout.ejs (browser): Is Authenticated:', "<%= typeof isAuthenticated !== 'undefined' ? isAuthenticated : 'UNDEFINED' %>");
+        // console.log('layout.ejs (browser): User:', "<%= typeof user !== 'undefined' ? JSON.stringify(user) : 'UNDEFINED' %>");
+    </script>
+
+
+    <%
+        // ЭТО КОД EJS, который выполняется на СЕРВЕРЕ Node.js
+        console.log('layout.ejs (server): Attempting to access title...');
+        if (typeof title === 'undefined') {
+            console.log('layout.ejs (server): ERROR: title is UNDEFINED!');
+        } else {
+            console.log('layout.ejs (server): Title is:', title);
+        }
+
+        console.log('layout.ejs (server): IsAuthenticated:', typeof isAuthenticated !== 'undefined' ? isAuthenticated : 'UNDEFINED');
+        console.log('layout.ejs (server): User:', typeof user !== 'undefined' ? user : 'UNDEFINED');
+    %>
+
+    <header class="main-header">
+        <nav class="main-nav">
+            <ul class="main-nav-list">
+                <li><a href="/">Home</a></li>
+                <% if (isAuthenticated) { %>
+                    <% if (user.rol === 'admin') { %>
+                        <li><a href="/admin/dashboard">Panel de Administrador</a></li>
+                    <% } else { %>
+                        <li><a href="/client/dashboard">Mi cuenta</a></li>
+                    <% } %>
+                    <li><a href="/auth/logout">Cerrar sesion (<%= user.nombre || user.email %>)</a></li>
+                <% } else { %>
+                    <li><a href="/auth/login">Iniciar sesion</a></li>
+                    <li><a href="/auth/register">Registrarse</a></li>
+                <% } %>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="content">
+        <%- body %> </main>
+
+    <footer class="main-footer">
+        <p>&copy; 2025 Tech Store. Todos los derechos reservados.</p>
+    </footer>
+
+    </body>
+</html>

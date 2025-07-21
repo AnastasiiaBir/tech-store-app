@@ -1,0 +1,75 @@
+<!--views/admin/productos.ejs-->
+<!DOCTYPE html>
+<html>
+<head>
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/stylesheets/style.css">
+</head>
+<body>
+  <h1><%= title %></h1>
+
+  <p><a href="/admin/dashboard">← Volver al panel de administración</a></p>
+
+  <h2>Lista de productos</h2>
+  <table border="1">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Imagen</th>
+        <th>Nombre</th>
+        <th>Descripción</th>
+        <th style="text-align:right;">Precio (€)</th>
+        <th>Stock</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% productos.forEach(p => { %>
+        <tr>
+          <td><%= p.id %></td>
+          <td>
+            <% if (p.imagenUrl) { %>
+              <img src="/uploads/productos/<%= p.imagenUrl %>" alt="Imagen de <%= p.nombre %>" width="100">
+            <% } else { %>
+              —
+            <% } %>
+          </td>
+          <td><%= p.nombre %></td>
+          <td><%= p.descripcion || '—' %></td>
+          <td>
+            <% if (!isNaN(p.precioUnitario)) { %>
+              <%= Number(p.precioUnitario).toFixed(2) %> €
+              <% } else { %>
+                —
+              <% } %>
+            </td>
+            <td><%= p.stock || '—' %></td>
+          <td>
+            <a href="/admin/productos/editar/<%= p.id %>">✏️ Editar</a> |
+            <form action="/admin/productos/eliminar/<%= p.id %>" method="POST" style="display:inline;">
+              <button type="submit" onclick="return confirm('¿Eliminar este producto?')">🗑️ Eliminar</button>
+            </form>
+          </td>
+        </tr>
+      <% }); %>
+    </tbody>
+  </table>
+
+  <h2>➕ Añadir nuevo producto</h2>
+  <form action="/admin/productos/nuevo" method="POST" enctype="multipart/form-data">
+    <label>Imagen:</label>
+    <input type="file" name="imagen" accept="image/*"><br>
+
+    <label>Nombre:</label>
+    <input type="text" name="nombre" required><br>
+
+    <label>Descripción:</label>
+    <input type="text" name="descripcion"><br>
+
+    <label>Precio (€):</label>
+    <input type="number" name="precio" step="0.01" required><br>
+
+    <button type="submit">Crear producto</button>
+  </form>
+</body>
+</html>
