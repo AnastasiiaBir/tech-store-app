@@ -1,13 +1,55 @@
+<!--views/admin/clientes.ejs-->
 <!DOCTYPE html>
 <html>
 <head>
   <title><%= title %></title>
   <link rel="stylesheet" href="/stylesheets/style.css">
+  <style>
+    #exportMenu a {
+      padding: 6px 12px;
+      background-color: white;
+      border: 1px solid #ccc;
+      margin-bottom: 4px;
+      display: block;
+      width: 100px;
+      text-align: center;
+      text-decoration: none;
+      color: #333;
+    }
+    #exportMenu a:hover {
+      background-color: #f0f0f0;
+    }
+  </style>
 </head>
 <body>
   <h1><%= title %></h1>
 
   <p><a href="/admin/dashboard">⬅ Volver al panel de administración</a></p>
+  
+  <!-- Exportar clientes -->
+   <div style="margin-bottom: 20px; position: relative;">
+    <button id="exportClientesButton" class="btn btn-primary">Exportar</button>
+    <div id="exportClientesMenu" style="display: none; position: absolute; z-index: 10;">
+      <a href="/admin/exportar-productos/csv" class="btn btn-outline-secondary btn-sm d-block">CSV</a>
+      <a href="/admin/exportar-productos/pdf" class="btn btn-outline-secondary btn-sm d-block">PDF</a>
+      <a href="/admin/exportar-productos/excel" class="btn btn-outline-secondary btn-sm d-block">Excel</a>
+    </div>Clientes
+  </div>
+
+  <script>
+  const exportClientesButton = document.getElementById('exportClientesButton');
+  const exportClientesMenu = document.getElementById('exportClientesMenu');
+
+  exportClientesButton.addEventListener('click', () => {
+    exportClientesMenu.style.display = exportClientesMenu.style.display === 'none' ? 'block' : 'none';
+  });
+
+  document.addEventListener('click', function (event) {
+    if (!exportClientesButton.contains(event.target) && !exportClientesMenu.contains(event.target)) {
+      exportClientesMenu.style.display = 'none';
+    }
+  });
+  </script>
 
   <% if (clientes.length === 0) { %>
     <p>No hay clientes registrados.</p>

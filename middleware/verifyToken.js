@@ -5,7 +5,7 @@ function verifyToken(req, res, next) {
   const token = req.cookies.token;
 
   if (!token) {
-    return res.redirect('/login');
+    return res.redirect('/auth/login');
   }
 
   try {
@@ -14,7 +14,7 @@ function verifyToken(req, res, next) {
     req.user = decoded; // можно использовать в контроллерах
     next();
   } catch (err) {
-    return res.redirect('/login');
+    return res.redirect('/auth/login');
   }
 }
 

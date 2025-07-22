@@ -70,7 +70,12 @@ exports.register = async (req, res) => {
         });
 
         // Создаем JWT
-        const token = generarJWT({ id: newCliente.id, email: newCliente.email, role: newCliente.rol });
+        const token = generarJWT({
+            id: newCliente.id,
+            email: newCliente.email,
+            login: newCliente.email,
+            role: newCliente.rol
+        });
 
         // Кладем токен в httpOnly cookie
         res.cookie('token', token, {
@@ -140,7 +145,12 @@ exports.login = async (req, res) => {
         }
 
         // Создаем JWT
-    const token = generarJWT({ id: cliente.id, email: cliente.email, role: cliente.rol });
+    const token = generarJWT({ 
+        id: cliente.id,
+        email: cliente.email,
+        login: cliente.email,
+        role: cliente.rol
+    });
 
     // Кладем токен в httpOnly cookie
     res.cookie('token', token, {

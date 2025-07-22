@@ -259,3 +259,30 @@ exports.actualizarEstadoPedido = async (req, res) => {
     res.status(500).render('error', { title: 'Error', message: 'No se pudo actualizar el estado del pedido', error });
   }
 };
+
+// 📦 Экспорт продуктов в CSV
+const { stringify } = require('csv-stringify/sync'); // ← не забудь установить: npm i csv-stringify
+
+exports.exportarCSV = async (req, res) => {
+  try {
+    const productos = await Producto.findAll();
+
+    const datosCSV = productos.map(producto => ({
+      id: producto.id,
+      nombre: producto.nombre,
+      descripcion: producto.descripcion,
+      precioUnitario: producto.precioUnitario,
+      stock: producto.stock,
+      imagenUrl: producto.imagenUrl
+    }));
+
+    const csv = stringify(datosCSV, { header: true });
+
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', 'attachment; filename=productos.csv');
+    res.send(csv);
+  } catch (error) {
+    console.error('❌ Error al exportar productos a CSV:', error);
+    res.status(500).send('Error al generar el archivo CSV');
+  }
+};
