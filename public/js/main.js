@@ -22,22 +22,26 @@ window.addEventListener('DOMContentLoaded', () => {
   // 🔍 Фильтрация товаров
   const filtrarBtn = document.getElementById('filtrarBtn');
   const nombreFiltro = document.getElementById('nombreFiltro');
-  const precioFiltro = document.getElementById('precioFiltro');
+  const precioMinFiltro = document.getElementById('precioMinFiltro');
+  const precioMaxFiltro = document.getElementById('precioMaxFiltro');
   const filas = document.querySelectorAll('.tabla-productos tbody tr');
 
-  if (filtrarBtn && nombreFiltro && precioFiltro && filas.length > 0) {
+  if (filtrarBtn && nombreFiltro && precioMinFiltro && precioMaxFiltro && filas.length > 0) {
     filtrarBtn.addEventListener('click', () => {
       const nombre = nombreFiltro.value.toLowerCase();
-      const precioMax = parseFloat(precioFiltro.value);
+      const precioMin = parseFloat(precioMinFiltro.value);
+      const precioMax = parseFloat(precioMaxFiltro.value);
 
       filas.forEach(fila => {
-        const nombreProd = fila.querySelector('td:nth-child(1)').textContent.toLowerCase();
-        const precioProd = parseFloat(fila.querySelector('td:nth-child(3)').textContent);
+        const nombreProd = fila.querySelector('td:nth-child(2)').textContent.toLowerCase();
+        const precioProd = parseFloat(fila.querySelector('td:nth-child(4)').textContent);
 
         const coincideNombre = nombre === '' || nombreProd.includes(nombre);
-        const coincidePrecio = isNaN(precioMax) || precioProd <= precioMax;
+        const coincideMin = isNaN(precioMin) || precioProd >= precioMin;
+        const coincideMax = isNaN(precioMax) || precioProd <= precioMax;
 
-        fila.style.display = (coincideNombre && coincidePrecio) ? '' : 'none';
+        const mostrar = coincideNombre && coincideMin && coincideMax;
+        fila.style.display = mostrar ? '' : 'none';
       });
     });
   }

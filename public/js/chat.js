@@ -1,3 +1,4 @@
+// public/js/chat.js
 document.addEventListener('DOMContentLoaded', () => {
   const socket = io();
 
@@ -52,13 +53,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
     mensajesDiv.appendChild(div);
     mensajesDiv.scrollTop = mensajesDiv.scrollHeight;
-  }
 
   // Получение истории сообщений
   socket.on('historialMensajes', (mensajes) => {
     mensajesDiv.innerHTML = '';
     mensajes.forEach(renderMensaje);
   });
+
+  // 🔔 Отправка события "прочитано" для входящих сообщений от администратора
+  if (mensaje.remitente !== 'cliente') {
+    socket.emit('mensajeLeido', {
+      mensajeId: mensaje.id,
+      clienteId: clienteId,
+      remitente: 'cliente'
+    });
+  }
+}
 
   // Получение нового сообщения
   socket.on('mensajeRecibido', (mensaje) => {

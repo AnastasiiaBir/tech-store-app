@@ -1,18 +1,56 @@
 // controllers/adminProductoController.js
 const { Producto } = require('../models');
 
+// const { Producto, Sequelize } = require('../models');
+const { Op } = require('sequelize');
+
 // Показать все продукты
+// exports.getProductos = async (req, res) => {
+  // try {
+    // const productos = await Producto.findAll();
+    // res.render('admin/productos', {
+      // title: 'Gestión de Productos',
+      // productos,
+      // user: req.session.user
+    // });
+  // } catch (error) {
+    // console.error('Error al cargar productos:', error);
+    // res.status(500).render('error', { title: 'Error', message: 'No se pudo cargar productos', error });
+  // }
+// };
+
 exports.getProductos = async (req, res) => {
   try {
-    const productos = await Producto.findAll();
+    const { nombre, precioMin, precioMax } = req.query;
+    const where = {};
+
+    if (nombre && nombre.trim() !== '') {
+      where.nombre = { [Op.like]: `%${nombre.trim()}%` }; // PostgreSQL, если у тебя Sequelize + Postgres
+    }
+
+    if (precioMin || precioMax) {
+      where.precioUnitario = {};
+      if (precioMin) where.precioUnitario[Op.gte] = parseFloat(precioMin);
+      if (precioMax) where.precioUnitario[Op.lte] = parseFloat(precioMax);
+    }
+
+    const productos = await Producto.findAll({ where });
+
     res.render('admin/productos', {
       title: 'Gestión de Productos',
       productos,
+      nombre,
+      precioMin,
+      precioMax,
       user: req.session.user
     });
   } catch (error) {
     console.error('Error al cargar productos:', error);
-    res.status(500).render('error', { title: 'Error', message: 'No se pudo cargar productos', error });
+    res.status(500).render('error', {
+      title: 'Error',
+      message: 'No se pudo cargar productos',
+      error
+    });
   }
 };
 

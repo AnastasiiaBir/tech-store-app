@@ -73,14 +73,69 @@ exports.getPedidos = async (req, res) => {
 };
 
 // --- Просмотр сообщений поддержки ---
+const { Op, Sequelize } = require('sequelize');
+
+//exports.getMensajes = async (req, res) => {
+  //try {
+    // Получаем последнее сообщение от каждого клиента
+    //const mensajes = await Mensaje.findAll({
+      //attributes: [
+        //[Sequelize.fn('MAX', Sequelize.col('fechaEnvio')), 'ultimaFecha'],
+        //'contenido',
+        //'clienteId',
+        //'leidoAdmin'
+      //],
+      //include: {
+        //model: Cliente,
+        //attributes: ['id', 'nombre', 'email']
+      //},
+      //group: ['clienteId', 'Cliente.id'],
+      //order: [[Sequelize.fn('MAX', Sequelize.col('fechaEnvio')), 'DESC']]
+    //});
+
+    //res.render('admin/mensajes', {
+     // title: 'Mensajes de Soporte',
+      //user: req.session.user,
+      //mensajes
+    //});
+  //} catch (error) {
+    //console.error('❌ Error al cargar mensajes:', error);
+    //res.status(500).render('error', {
+      //title: 'Error',
+      //message: 'No se pudieron cargar los mensajes',
+      //error
+    //});
+  //}
+//};
+
 exports.getMensajes = async (req, res) => {
   try {
-    const mensajes = await Mensaje.findAll({
-      include: {
-        model: Cliente,
-        attributes: ['nombre', 'email']
-      },
-      order: [['createdAt', 'DESC']]
+    // Получаем последние сообщения от каждого клиента
+    const [resultados] = await Mensaje.sequelize.query(`
+      SELECT m1.*
+      FROM mensajes m1
+      INNER JOIN (
+        SELECT clienteId, MAX(fechaEnvio) AS ultimaFecha
+        FROM mensajes
+        GROUP BY clienteId
+      ) m2
+      ON m1.clienteId = m2.clienteId AND m1.fechaEnvio = m2.ultimaFecha
+      ORDER BY m1.fechaEnvio DESC
+    `);
+
+    // Загружаем клиентов отдельно (нормальным способом)
+    const clienteIds = resultados.map(m => m.clienteId);
+    const clientes = await Cliente.findAll({
+      where: { id: clienteIds }
+    });
+
+    // Привязываем клиентов вручную
+    const mensajes = resultados.map(m => {
+      const cliente = clientes.find(c => c.id === m.clienteId);
+      return {
+        ...m,
+        Cliente: cliente || null
+      };
     });
 
     res.render('admin/mensajes', {
@@ -88,6 +143,7 @@ exports.getMensajes = async (req, res) => {
       user: req.session.user,
       mensajes
     });
+
   } catch (error) {
     console.error('❌ Error al cargar mensajes:', error);
     res.status(500).render('error', {
@@ -114,6 +170,18 @@ exports.getMensajeDetalle = async (req, res) => {
       where: { clienteId: mensaje.clienteId },
       order: [['fechaEnvio', 'ASC']]
     });
+
+    // Пометить все НЕпрочитанные сообщения от клиента как прочитанные
+await Mensaje.update(
+  { leidoAdmin: true },
+  {
+    where: {
+      clienteId: mensaje.clienteId,
+      remitente: 'cliente',
+      leidoAdmin: false
+    }
+  }
+);
 
     res.render('admin/mensaje_detalle', {
       title: `Mensaje de ${mensaje.Cliente.nombre}`,

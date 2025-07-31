@@ -17,6 +17,7 @@
       <table border="1" cellpadding="5" cellspacing="0">
         <thead>
           <tr>
+            <th>Imagen</th>
             <th>Nombre</th>
             <th>Descripción</th>
             <th>Precio (€)</th>
@@ -26,6 +27,13 @@
         <tbody>
           <% productos.forEach(producto => { %>
             <tr>
+              <td>
+                <% if (p.imagenUrl) { %>
+                  <img src="/uploads/productos/<%= p.imagenUrl %>" alt="Imagen de <%= p.nombre %>" width="100">
+                  <% } else { %>
+                    —
+                <% } %>
+              </td>
               <td><%= producto.nombre %></td>
               <td><%= producto.descripcion %></td>
               <td><%= producto.precioUnitario %></td>

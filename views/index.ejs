@@ -11,7 +11,8 @@
 
     <div class="filters">
       <input type="text" id="nombreFiltro" placeholder="Buscar por nombre...">
-      <input type="number" id="precioFiltro" placeholder="Precio máximo (€)">
+      <input type="number" id="precioMinFiltro" placeholder="Precio mínimo (€)">
+      <input type="number" id="precioMaxFiltro" placeholder="Precio máximo (€)">
       <button type="button" id="filtrarBtn">Filtrar</button>
     </div>
 
@@ -19,6 +20,7 @@
       <table class="tabla-productos">
         <thead>
           <tr>
+            <th>Imagen</th>
             <th>Nombre</th>
             <th>Descripción</th>
             <th>Precio (€)</th>
@@ -28,6 +30,13 @@
         <tbody>
           <% productos.forEach(p => { %>
             <tr>
+              <td>
+                <% if (p.imagenUrl) { %>
+                  <img src="/uploads/productos/<%= p.imagenUrl %>" alt="Imagen de <%= p.nombre %>" width="100">
+                  <% } else { %>
+                    —
+                <% } %>
+              </td>
               <td><%= p.nombre %></td>
               <td><%= p.descripcion %></td>
               <td><%= p.precioUnitario %></td>
